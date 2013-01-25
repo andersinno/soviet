@@ -20,12 +20,14 @@ Quick start/tour/something
 --------------------------
 
 1. Add Soviet to your Django ``INSTALLED_APPS`` and ``syncdb``.
-2. Open up ``manage.py shell``. Run something like
+2. Open up ``manage.py shell``. Run something like this:
 
-    from soviet import make_job, run_job_slaves
-    make_job("soviet.menial_jobs:calculate_sum", {"a": 1000, "b": 2000})
-    make_job("soviet.menial_jobs:calculate_sum", {"a": None, "b": []})
-    run_job_slaves()
+```python
+from soviet import make_job, run_job_slaves
+make_job("soviet.menial_jobs:calculate_sum", {"a": 1000, "b": 2000})
+make_job("soviet.menial_jobs:calculate_sum", {"a": None, "b": []})
+run_job_slaves()
+```
 
 3. A subprocess should start and run through all jobs available (all two of them).
 4. A stringified version of the return value of each job is saved into the database.
