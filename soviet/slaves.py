@@ -36,6 +36,9 @@ def find_manage_py():
             else:
                 dirname = os.path.join(dirname, "..")
 
+    raise ValueError("Soviet couldn't find your manage.py --"
+                     "please manually define it in settings "
+                     "(SOVIET_MANAGE_PY)")
 
 def find_python():
     """ Attempt to find a Python executable. """
@@ -67,21 +70,15 @@ def run_job_slaves(slaves_to_run=1, delay=0.2, log_basename=None, verbose=False)
     :return: Returns a list of PIDs of the slaves spawned.
     """
     pids = []
-    manage_py = find_manage_py()
-    if not manage_py:
-        raise ValueError("Soviet couldn't find your manage.py --"
-                         "please manually define it in settings "
-                         "(SOVIET_MANAGE_PY)")
-
-    python_exc = find_python()
-
 
     args = [
-        python_exc,
-        manage_py,
-        ("-v2" if verbose else "-v0"),
-        "soviet_manage", "job_slave"
+	    find_python(),
+	    find_manage_py(),
+	    "soviet_manage",
+	    ("-v2" if verbose else "-v0"),
+        "job_slave"
     ]
+
 
     for x in xrange(slaves_to_run):
         slave_id = uuid.uuid4().hex
