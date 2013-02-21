@@ -6,6 +6,7 @@ import uuid
 from django.conf import settings
 import os
 import subprocess
+from django.core.exceptions import ImproperlyConfigured
 
 
 def find_manage_py():
@@ -36,6 +37,25 @@ def find_manage_py():
                 dirname = os.path.join(dirname, "..")
 
 
+def find_python():
+    """ Attempt to find a Python executable. """
+
+    python_executable = getattr(settings, "SOVIET_PYTHON_EXECUTABLE", None)
+    if python_executable:
+        if not os.path.isfile(python_executable):
+            raise ImproperlyConfigured(
+                "You have explicitly declared a Python executable "
+                "for Soviet (%r), but it doesn't exist." % python_executable)
+        return python_executable
+    else:
+        python_executable = sys.executable
+        if "py" not in python_executable:
+            raise ImproperlyConfigured(
+                "Soviet auto-detected %r to be your Python executable, "
+                "but it doesn't look very py-like. Consider SOVIET_PYTHON_EXECUTABLE" % python_executable)
+
+        return python_executable
+
 def run_job_slaves(slaves_to_run=1, delay=0.2, log_basename=None, verbose=False):
     """ Start a given number of job slave processes.
 
@@ -53,8 +73,12 @@ def run_job_slaves(slaves_to_run=1, delay=0.2, log_basename=None, verbose=False)
                          "please manually define it in settings "
                          "(SOVIET_MANAGE_PY)")
 
+    python_exc = find_python()
+
+
     args = [
-        sys.executable, manage_py,
+        python_exc,
+        manage_py,
         ("-v2" if verbose else "-v0"),
         "soviet_manage", "job_slave"
     ]
